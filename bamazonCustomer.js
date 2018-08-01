@@ -2,7 +2,7 @@ require("dotenv").config();
 var mysql = require("mysql");
 var login = require('./sql');
 const Table = require('cli-table');
-var inquirer = require('inquirer');
+var questions = require('inquirer');
 var db;
 
 var connection = mysql.createConnection({
@@ -31,24 +31,24 @@ connection.query("SELECT * FROM products", function (err, results) {
 });
 
 function main(results) {
+   
     for (let i = 0; i < results.length; i++) {
         itemTable.push([results[i].item_id, results[i].product_name, results[i].price]);
     }
     console.log(itemTable.toString());
-    inquirer
-        .prompt([{
+    questions.prompt([{
             name: "choice",
             type: "rawlist",
             choices: function () {
                 var choiceArray = [];
-                for (let i = 0; i < results.length; i++) {
-                    choiceArray.push(results[i].item_id);
-                }
+                results.forEach(element => {
+                    choiceArray.push(element.item_id.toString());
+                });
                 return choiceArray;
             },
             message: "What item would you like to buy?"
         }])
         .then(function (answer) {
-            console.log(answer);
+            console.log("You chose: "+results[answer.choice-1].product_name);
         })
 };
